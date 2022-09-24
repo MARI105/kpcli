@@ -12,7 +12,7 @@ kpcli = "kpcli.cli:app"
 [tool.poetry.dependencies]
 python = "^3.6"
 typer = {version = "^0.3.2", extras = ["all"]}
-pykeepass = "^3.2.1"
+pykeepass = "^4.0.3"
 pyperclip = "^1.8.1"
 tableformatter = "^0.1.5"
 attrs = "^20.3.0"
