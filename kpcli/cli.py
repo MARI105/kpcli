@@ -392,6 +392,9 @@ def main(
             encrypter.save_password(config)
         else:
             encrypter.reset()
+    if config.password == "None":
+        # If "None", database is assumed to have no password
+        config.password = None
     try:
         if ctx.invoked_subcommand == "compare":
             ctx.obj = KpDatabaseComparator(config)
