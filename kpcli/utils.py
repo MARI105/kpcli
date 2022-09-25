@@ -31,7 +31,7 @@ def get_config_from_file(profile="default"):
             return config[profile]
 
 
-def get_config(profile="default"):
+def get_config(ctx: typer.Context, profile="default"):
     """
     Find database config from a config.ini file or relevant environment variables
     returns a KPConfig instance
@@ -69,7 +69,8 @@ def get_config(profile="default"):
             encrypter.reset()
         else:
             db_config.password = encrypter.get_password()
-    typer.secho(f"Database: {db_config.filename}", fg=typer.colors.YELLOW)
+    if not ctx.params["quiet"]:
+        typer.secho(f"Database: {db_config.filename}", fg=typer.colors.YELLOW)
     return db_config, store_encrypted_password
 
 
@@ -90,10 +91,11 @@ def get_timeout(profile="default"):
         return 5
 
 
-def echo_banner(message: str, **style_options):
+def echo_banner(ctx: typer.Context, message: str, **style_options):
     """Helper function to print a banner style message"""
-    banner = "=" * 80
-    typer.secho(f"{banner}\n{message}\n{banner}", **style_options)
+    if not ctx.parent.params["quiet"]:
+        banner = "=" * 80
+        typer.secho(f"{banner}\n{message}\n{banner}", **style_options)
 
 
 class InputTimedOut(Exception):

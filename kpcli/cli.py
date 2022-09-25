@@ -105,7 +105,7 @@ def compare(ctx: typer.Context, show_details: bool = False):
     if not conflicting_tables:
         typer.echo("No conflicting tables found")
     for conflicting_table_name, conflicting_table in conflicting_tables.items():
-        echo_banner(f"Comparison db: {conflicting_table_name}", fg=typer.colors.RED)
+        echo_banner(ctx, f"Comparison db: {conflicting_table_name}", fg=typer.colors.RED)
         typer.echo(conflicting_table)
 
 
@@ -134,11 +134,11 @@ def list_groups_and_entries(
     if entries:
         for group_name in group_names:
             entry_names = "\n".join(ctx_connector(ctx).list_group_entries(group_name))
-            echo_banner(f"{group_name}", fg=typer.colors.GREEN)
+            echo_banner(ctx, f"{group_name}", fg=typer.colors.GREEN)
             typer.echo(entry_names)
     else:
         group_names = "\n".join(group_names)
-        echo_banner("Groups", fg=typer.colors.GREEN)
+        echo_banner(ctx, "Groups", fg=typer.colors.GREEN)
         typer.echo(group_names)
 
 
@@ -200,7 +200,7 @@ def add_entry(
     Add a new entry
     """
     ctx_connector(ctx).add_new_entry(group, title, username, password, url, notes)
-    echo_banner("New entry added")
+    echo_banner(ctx, "New entry added")
     typer.echo(
         f"{group.name}/{title}\nUsername {username}\nPassword {'*' * len(password)}\nURL: {url}\nNotes: {notes}"
     )
@@ -371,6 +371,9 @@ def main(
         "default", "--profile", "-p", help="Specify config profile to use"
     ),
     loglevel: Optional[str] = typer.Option("INFO"),
+    quiet: Optional[bool] = typer.Option(
+        False, "--quiet", "-q", help="Turn off verbose output"
+    ),
 ):
     """
     Interact with a KeePassX database
@@ -383,7 +386,7 @@ def main(
     logging.basicConfig(level=loglevel.upper())
 
     # Instantiate the relevant database utility object on the Context
-    config, store_encrypted_password = get_config(profile=profile)
+    config, store_encrypted_password = get_config(ctx, profile=profile)
     encrypter = Encrypter(store_encrypted_password=store_encrypted_password)
     if config.password is None:
         # If a password wasn't found in the config file or environment, prompt the use for it
