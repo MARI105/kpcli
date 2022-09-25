@@ -213,6 +213,10 @@ def get_entry(
         ...,
         help="Name (or partial name) of item to fetch.  Specify group with / e.g. root/my_item",
     ),
+    field_name: str = typer.Argument(
+        None,
+        help="Field of item to fetch.",
+    ),
     show_password: bool = typer.Option(
         False, "--show-password", "-s", help="Show password"
     ),
@@ -226,9 +230,14 @@ def get_entry(
         raise typer.Exit()
     for entry in entries:
         details = ctx_connector(ctx).get_details(entry, show_password)
-        echo_banner(details["name"])
-        typer.echo("\n".join([f"{field}: {value}" for field, value in details.items()]))
-
+        echo_banner(ctx, details["name"])
+        if field_name is None:
+            typer.echo("\n".join([f"{field}: {value}" for field, value in details.items()]))
+        else:
+            if field_name in details:
+                typer.echo(details[field_name])
+            else:
+                typer.echo("No matching field in entry found")
 
 def get_or_prompt_single_entry(ctx: typer.Context, name):
     """
