@@ -43,17 +43,25 @@ class KpDatabaseConnector:
         Both <group> and <entry title> are case insensitive and can be partial terms.
         If a group is provided, entries will only be looked for in that group.
         """
+        path = None
+
         if query is None:
             return []
         if group is None:
             query = query.split("/")
-            if len(query) > 1:
+            if len(query) > 2:
+                path = query.copy()
+                query = None
+            elif len(query) > 1:
                 group_name, query = query
                 group = self.find_group(group_name=group_name)
             else:
                 query = query[0]
 
-        if group:
+        if path:
+            entries = self.db.find_entries(title=query, path=path, recursive=False, regex=True, flags="i")
+            entries = [entries] if entries is not None else []
+        elif group:
             # recursive=False because if we have a specific group we want to search this group only
             entries = self.db.find_entries(
                 title=query, group=group, recursive=False, regex=True, flags="i"
